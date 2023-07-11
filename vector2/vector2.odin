@@ -17,3 +17,32 @@ add :: proc(a: Vector2, b: Vector2) -> Vector2 {
 sub :: proc(a: Vector2, b: Vector2) -> Vector2 {
 	return Vector2{a.x - b.x, a.y - b.y}
 }
+
+equals :: proc(a: Vector2, b: Vector2) -> bool {
+	return a.x == b.x && a.y == b.y
+}
+
+taxi_cab_magnitude :: proc(v: Vector2) -> int {
+	return abs(v.x) + abs(v.y)
+}
+
+normalize_orthogonal :: proc(v: Vector2) -> Vector2 {
+	if abs(v.x) >= abs(v.y) {
+		return Vector2{v.x / abs(v.x), 0}
+	} else {
+		return Vector2{0, v.y / abs(v.y)}
+	}
+}
+
+normalize_diagonal :: proc(v: Vector2, favor_diagonal := false) -> Vector2 {
+	abs_x := abs(v.x)
+	abs_y := abs(v.y)
+
+	if favor_diagonal && abs_x > 0 && abs_y > 0 {
+		return Vector2{v.x / abs_x, v.y / abs_y}
+	} else if abs_x == abs_y {
+		return Vector2{v.x / abs_x, v.y / abs_y}
+	}
+
+	return normalize_orthogonal(v)
+}
