@@ -117,6 +117,7 @@ get_viewing_distance :: proc(
 	return
 }
 
+
 iterate_in_direction :: proc(
 	grid: ^HeightMap,
 	from: ^Vector2,
