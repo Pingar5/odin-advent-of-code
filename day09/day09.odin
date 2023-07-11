@@ -9,10 +9,17 @@ import "shared:vector2"
 main :: proc() {
 	using vector2
 
-	input_file_path := os.args[1]
-	raw, ok := os.read_entire_file(input_file_path, context.allocator)
+	tail_length, tail_length_ok := strconv.parse_int(os.args[2])
 
-	if !ok {
+	if !tail_length_ok {
+		fmt.println("That is not a valid tail length")
+		return
+	}
+
+	input_file_path := os.args[1]
+	raw, input_file_ok := os.read_entire_file(input_file_path, context.allocator)
+
+	if !input_file_ok {
 		fmt.println("Could not read file")
 		return
 	}
@@ -26,9 +33,11 @@ main :: proc() {
 	}
 
 	head := Vector2{0, 0}
-	tail := Vector2{0, 0}
+	segments := make([dynamic]Vector2, tail_length, tail_length)
+	defer delete(segments)
+
 	tail_positions := make([dynamic]Vector2, 1)
-	tail_positions[0] = tail
+	tail_positions[0] = segments[len(segments) - 1]
 	defer delete(tail_positions)
 
 	data := string(raw)
@@ -39,20 +48,26 @@ main :: proc() {
 		for i in 0 ..< count {
 			head = add(head, direction)
 
-			moved: bool
-			tail, moved = select_tail_position(tail, head)
+			for segment_index in 0 ..< tail_length {
+				following: Vector2
+				if segment_index == 0 do following = head
+				else do following = segments[segment_index - 1]
 
-			if moved {
-				is_new := true
+				moved: bool
+				segments[segment_index], moved = move_segment(segments[segment_index], following)
 
-				for old_tail_position in tail_positions {
-					if equals(tail, old_tail_position) {
-						is_new = false
-						break
+				if moved && segment_index == tail_length - 1 {
+					is_new := true
+
+					for old_tail_position in tail_positions {
+						if equals(segments[segment_index], old_tail_position) {
+							is_new = false
+							break
+						}
 					}
-				}
 
-				if is_new do append(&tail_positions, tail)
+					if is_new do append(&tail_positions, segments[segment_index])
+				}
 			}
 		}
 	}
@@ -60,18 +75,18 @@ main :: proc() {
 	fmt.println("Visited", len(tail_positions), "positions")
 }
 
-select_tail_position :: proc(
+move_segment :: proc(
 	old_position: vector2.Vector2,
-	head: vector2.Vector2,
+	following: vector2.Vector2,
 ) -> (
 	new_position: vector2.Vector2,
 	moved: bool = false,
 ) {
 	using vector2
 
-	if equals(old_position, head) do new_position = old_position
-	else if old_position.x == head.x || old_position.y == head.y {
-		delta := sub(head, old_position)
+	if equals(old_position, following) do new_position = old_position
+	else if old_position.x == following.x || old_position.y == following.y {
+		delta := sub(following, old_position)
 
 		if taxi_cab_magnitude(delta) > 1 {
 			direction := normalize_orthogonal(delta)
@@ -81,7 +96,7 @@ select_tail_position :: proc(
 			new_position = old_position
 		}
 	} else {
-		delta := sub(head, old_position)
+		delta := sub(following, old_position)
 
 		if taxi_cab_magnitude(delta) > 2 {
 			direction := normalize_diagonal(delta, true)
