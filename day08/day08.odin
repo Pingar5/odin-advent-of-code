@@ -4,14 +4,9 @@ import "core:fmt"
 import "core:os"
 import "core:strings"
 import "core:strconv"
+import "shared:vector2"
 
 HeightMap :: [dynamic][dynamic]int
-Vector2 :: [2]int
-
-UP :: [2]int{0, 1}
-DOWN :: [2]int{0, -1}
-RIGHT :: [2]int{1, 0}
-LEFT :: [2]int{-1, 0}
 
 main :: proc() {
 	input_file_path := os.args[1]
@@ -63,29 +58,31 @@ calculate_tree :: proc(
 	is_visible: bool = false,
 	scenic_score: int,
 ) {
+	using vector2
+
 	y_max := len(grid)
 	x_max := len(grid[0])
 	tree_height := grid[y][x]
 
 	is_visible =
-		get_max_height_in_direction(grid, [2]int{x, y}, UP) < tree_height ||
-		get_max_height_in_direction(grid, [2]int{x, y}, DOWN) < tree_height ||
-		get_max_height_in_direction(grid, [2]int{x, y}, LEFT) < tree_height ||
-		get_max_height_in_direction(grid, [2]int{x, y}, RIGHT) < tree_height
+		get_max_height_in_direction(grid, Vector2{x, y}, UP) < tree_height ||
+		get_max_height_in_direction(grid, Vector2{x, y}, DOWN) < tree_height ||
+		get_max_height_in_direction(grid, Vector2{x, y}, LEFT) < tree_height ||
+		get_max_height_in_direction(grid, Vector2{x, y}, RIGHT) < tree_height
 
 	scenic_score =
-		get_viewing_distance(grid, [2]int{x, y}, UP) *
-		get_viewing_distance(grid, [2]int{x, y}, DOWN) *
-		get_viewing_distance(grid, [2]int{x, y}, LEFT) *
-		get_viewing_distance(grid, [2]int{x, y}, RIGHT)
+		get_viewing_distance(grid, Vector2{x, y}, UP) *
+		get_viewing_distance(grid, Vector2{x, y}, DOWN) *
+		get_viewing_distance(grid, Vector2{x, y}, LEFT) *
+		get_viewing_distance(grid, Vector2{x, y}, RIGHT)
 
 	return
 }
 
 get_max_height_in_direction :: proc(
 	grid: ^HeightMap,
-	from: Vector2,
-	direction: Vector2,
+	from: vector2.Vector2,
+	direction: vector2.Vector2,
 ) -> (
 	max_height: int = -1,
 ) {
@@ -100,13 +97,13 @@ get_max_height_in_direction :: proc(
 
 get_viewing_distance :: proc(
 	grid: ^HeightMap,
-	from: Vector2,
-	direction: Vector2,
+	from: vector2.Vector2,
+	direction: vector2.Vector2,
 ) -> (
 	viewing_distance: int,
 ) {
 	iter_from := from
-	max_height := grid[from[1]][from[0]]
+	max_height := grid[from.y][from.x]
 
 	for height in iterate_in_direction(grid, &iter_from, direction) {
 		viewing_distance += 1
@@ -120,18 +117,17 @@ get_viewing_distance :: proc(
 
 iterate_in_direction :: proc(
 	grid: ^HeightMap,
-	from: ^Vector2,
-	direction: Vector2,
+	from: ^vector2.Vector2,
+	direction: vector2.Vector2,
 ) -> (
 	next_value: int,
 	ok: bool,
 ) {
-	from[0] += direction[0]
-	from[1] += direction[1]
+	from^ = vector2.add(from^, direction)
 
-	if from[0] < 0 || from[0] >= len(grid[0]) || from[1] < 0 || from[1] >= len(grid) {
+	if from.x < 0 || from.x >= len(grid[0]) || from.y < 0 || from.y >= len(grid) {
 		return -1, false
 	}
 
-	return grid[from[1]][from[0]], true
+	return grid[from.y][from.x], true
 }
