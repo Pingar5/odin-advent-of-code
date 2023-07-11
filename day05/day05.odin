@@ -18,7 +18,7 @@ Stack :: struct {
 
 main :: proc() {
 	input_file_path := os.args[1]
-    crane_model := os.args[2]
+	crane_model := os.args[2]
 	raw, ok := os.read_entire_file(input_file_path, context.allocator)
 
 	if !ok {
@@ -33,16 +33,16 @@ main :: proc() {
 
 	data := string(raw)
 	for line in strings.split_lines_iterator(&data) {
-        if len(line) == 0 {
-            continue
-        }
-        
+		if len(line) == 0 {
+			continue
+		}
+
 		if !crates_built {
-            if line[1] == '1' {
-                crates_built = true
-                continue
-            }
-            
+			if line[1] == '1' {
+				crates_built = true
+				continue
+			}
+
 			stack_index := 0
 			line_data := string(line)
 			for label in split_line_into_crates_iterator(&line_data) {
@@ -50,8 +50,8 @@ main :: proc() {
 					if len(stacks) <= stack_index {
 						inject_at(&stacks, stack_index, new(Stack))
 					} else if stacks[stack_index] == nil {
-                        stacks[stack_index] = new(Stack)
-                    }
+						stacks[stack_index] = new(Stack)
+					}
 
 					add_crate(stacks[stack_index], label.?)
 				}
@@ -59,31 +59,31 @@ main :: proc() {
 				stack_index += 1
 			}
 		} else {
-            words := strings.split(line, " ")
-            
-            count := strconv.atoi(words[1])
-            from := strconv.atoi(words[3]) - 1
-            to := strconv.atoi(words[5]) - 1
-            
-            if crane_model == "9001" {
-                move_crates_grouped(stacks[from], stacks[to], count)
-            } else {
-                move_crates_individually(stacks[from], stacks[to], count)
-            }
-        }
+			words := strings.split(line, " ")
+
+			count := strconv.parse_int(words[1]) or_else 0
+			from := (strconv.parse_int(words[3]) or_else 0) - 1
+			to := (strconv.parse_int(words[5]) or_else 0) - 1
+
+			if crane_model == "9001" {
+				move_crates_grouped(stacks[from], stacks[to], count)
+			} else {
+				move_crates_individually(stacks[from], stacks[to], count)
+			}
+		}
 	}
 
-    for stack in stacks {
-        fmt.print(stack.top.label)
-    }
-    fmt.println()
+	for stack in stacks {
+		fmt.print(stack.top.label)
+	}
+	fmt.println()
 }
 
 add_crate :: proc(stack: ^Stack, label: rune) {
 	crate := new(Crate)
 	crate.label = label
-    if stack.top == nil do stack.top = crate
-    if stack.bottom != nil do stack.bottom.next = crate
+	if stack.top == nil do stack.top = crate
+	if stack.bottom != nil do stack.bottom.next = crate
 	stack.bottom = crate
 }
 
@@ -97,15 +97,15 @@ move_crates_individually :: proc(from: ^Stack, to: ^Stack, count: int) {
 }
 
 move_crates_grouped :: proc(from: ^Stack, to: ^Stack, count: int) {
-    top_crate := from.top
-    bottom_crate := from.top
-    for i := 0; i < count - 1; i += 1 {
-        bottom_crate = bottom_crate.next
-    }
-    
-    from.top = bottom_crate.next
-    bottom_crate.next = to.top
-    to.top = top_crate
+	top_crate := from.top
+	bottom_crate := from.top
+	for i := 0; i < count - 1; i += 1 {
+		bottom_crate = bottom_crate.next
+	}
+
+	from.top = bottom_crate.next
+	bottom_crate.next = to.top
+	to.top = top_crate
 }
 
 print_stack :: proc(stack: ^Stack) {

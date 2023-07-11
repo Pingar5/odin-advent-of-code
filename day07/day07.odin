@@ -58,7 +58,7 @@ main :: proc() {
 			// Do nothing
 		} else {
 			split_line, err := strings.split(line, " ")
-			current_directory.size += strconv.atoi(split_line[0])
+			current_directory.size += strconv.parse_int(split_line[0]) or_else 0
 		}
 	}
 
