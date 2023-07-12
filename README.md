@@ -36,3 +36,6 @@ This is my attempt to learn odin using Advent of Code 2022! No promise that this
 
 ### Day 9
 - Nothing new, just a tricky problem
+
+### Day 10
+- String builder
