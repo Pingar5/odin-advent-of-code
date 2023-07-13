@@ -123,7 +123,7 @@ iterate_in_direction :: proc(
 	next_value: int,
 	ok: bool,
 ) {
-	from^ = vector2.add(from^, direction)
+	from^ += direction
 
 	if from.x < 0 || from.x >= len(grid[0]) || from.y < 0 || from.y >= len(grid) {
 		return -1, false

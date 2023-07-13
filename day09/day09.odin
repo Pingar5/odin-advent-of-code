@@ -46,7 +46,7 @@ main :: proc() {
 		count, _ := strconv.parse_int(line[2:])
 
 		for i in 0 ..< count {
-			head = add(head, direction)
+			head += direction
 
 			for segment_index in 0 ..< tail_length {
 				following: Vector2
@@ -60,7 +60,7 @@ main :: proc() {
 					is_new := true
 
 					for old_tail_position in tail_positions {
-						if equals(segments[segment_index], old_tail_position) {
+						if segments[segment_index] == old_tail_position {
 							is_new = false
 							break
 						}
@@ -84,23 +84,23 @@ move_segment :: proc(
 ) {
 	using vector2
 
-	if equals(old_position, following) do new_position = old_position
+	if old_position == following do new_position = old_position
 	else if old_position.x == following.x || old_position.y == following.y {
-		delta := sub(following, old_position)
+		delta := following - old_position
 
 		if taxi_cab_magnitude(delta) > 1 {
 			direction := normalize_orthogonal(delta)
-			new_position = add(old_position, direction)
+			new_position = old_position + direction
 			moved = true
 		} else {
 			new_position = old_position
 		}
 	} else {
-		delta := sub(following, old_position)
+		delta := following - old_position
 
 		if taxi_cab_magnitude(delta) > 2 {
 			direction := normalize_diagonal(delta, true)
-			new_position = add(old_position, direction)
+			new_position = old_position + direction
 			moved = true
 		} else {
 			new_position = old_position
