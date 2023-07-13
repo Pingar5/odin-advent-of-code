@@ -2,6 +2,7 @@ package vector2
 
 Vector2 :: distinct [2]int
 
+ZERO :: Vector2{0, 0}
 UP :: Vector2{0, 1}
 DOWN :: Vector2{0, -1}
 LEFT :: Vector2{-1, 0}

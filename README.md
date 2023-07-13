@@ -42,3 +42,7 @@ This is my attempt to learn odin using Advent of Code 2022! No promise that this
 
 ### Day 11
 - Least common multiple (math.lcm)
+
+### Day 12
+- Found out about odin's [array programming features](https://odin-lang.org/docs/overview/#array-programming) and added it to all vector lib and updated old days
+- Justify/pad string (in visualize_cost function)
